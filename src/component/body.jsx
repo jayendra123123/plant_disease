@@ -24,7 +24,16 @@ function Body() {
   };
 
   const validateFile = (file) => {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/tiff', 'image/svg+xml'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/bmp',
+      'image/tiff',
+      'image/svg+xml'
+    ];
     const maxFileSize = 10 * 1024 * 1024;
     if (!file) return false;
     if (!allowedTypes.includes(file.type.toLowerCase())) {
@@ -48,82 +57,52 @@ function Body() {
     }
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!selectedFile) return;
+
     setIsAnalyzing(true);
     setAnalysisProgress(0);
-    const interval = setInterval(() => {
+
+    const progressInterval = setInterval(() => {
       setAnalysisProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
+          clearInterval(progressInterval);
           return 100;
         }
         return prev + Math.random() * 15;
       });
     }, 200);
 
-    setTimeout(() => {
-      const results = [
-        {
-          confidence: 92,
-          category: 'Leaf Spot Disease',
-          severity: 'Moderate',
-          plantType: 'Tomato Plant',
-          description: 'The plant shows signs of bacterial leaf spot disease, characterized by dark brown spots with yellow halos on the leaves. This is a common bacterial infection that affects tomato plants, especially in humid conditions.',
-          treatment: 'Remove affected leaves immediately. Apply copper-based fungicide spray. Ensure proper air circulation and avoid overhead watering.',
-          prevention: 'Use drip irrigation, maintain plant spacing, apply mulch, and rotate crops annually.',
-          tags: ['Bacterial Disease', 'Leaf Spot', 'Tomato', 'Treatable'],
-          details: {
-            'Disease Type': 'Bacterial Leaf Spot',
-            'Affected Area': 'Leaves and stems',
-            'Severity Level': 'Moderate (60-70% affected)',
-            'Treatment Urgency': 'Within 2-3 days',
-            'Recovery Time': '2-3 weeks with treatment',
-            'Contagious': 'Yes - isolate plant'
-          }
-        },
-        {
-          confidence: 88,
-          category: 'Powdery Mildew',
-          severity: 'Mild',
-          plantType: 'Rose Plant',
-          description: 'Early signs of powdery mildew infection detected. White, powdery fungal growth is visible on leaf surfaces.',
-          treatment: 'Apply neem oil or baking soda solution. Prune affected areas and improve air circulation.',
-          prevention: 'Water at soil level, ensure good air circulation, avoid overcrowding.',
-          tags: ['Fungal Disease', 'Powdery Mildew', 'Rose', 'Early Stage'],
-          details: {
-            'Disease Type': 'Powdery Mildew (Fungal)',
-            'Affected Area': 'Upper leaf surfaces',
-            'Severity Level': 'Mild (20-30% affected)',
-            'Treatment Urgency': 'Within 1 week',
-            'Recovery Time': '1-2 weeks with treatment',
-            'Contagious': 'Moderately - monitor nearby plants'
-          }
-        },
-        {
-          confidence: 95,
-          category: 'Healthy Plant',
-          severity: 'None',
-          plantType: 'Garden Plant',
-          description: 'Congratulations! Your plant appears to be healthy with no visible signs of disease or pest damage.',
-          treatment: 'Continue current care routine. No treatment needed.',
-          prevention: 'Maintain regular watering schedule, ensure adequate sunlight, and monitor for changes.',
-          tags: ['Healthy', 'No Disease', 'Good Care', 'Thriving'],
-          details: {
-            'Disease Type': 'None - Healthy plant',
-            'Affected Area': 'No affected areas detected',
-            'Severity Level': 'Excellent condition',
-            'Treatment Urgency': 'No treatment required',
-            'Recovery Time': 'N/A - Plant is healthy',
-            'Contagious': 'No - Plant is disease-free'
-          }
-        }
-      ];
-      setAnalysis(results[Math.floor(Math.random() * results.length)]);
-      setIsAnalyzing(false);
-      clearInterval(interval);
-      setAnalysisProgress(100);
-    }, 3000);
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append(
+        'prompt',
+        `You are a plant pathologist. Identify the plant species and diagnose the disease visible in the uploaded image. Return:
+1. Plant name
+2. Disease name
+3. Severity (Mild/Moderate/Severe)
+4. Cause of disease
+5. Treatment recommendations
+6. Whether it’s contagious to other nearby plants.
+7. Add extra details: affected area, urgency, recovery time, and common tags.`
+      );
+
+      const res = await fetch('https://your-backend.com/api/gemini-diagnose', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      setAnalysis(data);
+    } catch (error) {
+      console.error('Error fetching diagnosis:', error);
+      setAnalysis({ error: 'Failed to diagnose. Try again later.' });
+    }
+
+    clearInterval(progressInterval);
+    setAnalysisProgress(100);
+    setIsAnalyzing(false);
   };
 
   return (
