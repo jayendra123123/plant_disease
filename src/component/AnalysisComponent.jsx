@@ -8,11 +8,14 @@ function AnalysisComponent({
   onAnalyze, 
   selectedFile 
 }) {
+  const safeTags = Array.isArray(analysis?.tags) ? analysis.tags : [];
+  const safeDetails = analysis?.details && typeof analysis.details === 'object' ? analysis.details : {};
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-xl"></span>
-        <h2 className="text-xl font-semibold text-gray-800">👁️ Plant Health Analysis</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+        <span style={{ fontSize: '20px' }}>👁️</span>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', margin: 0 }}>Plant Health Analysis</h2>
       </div>
       
       <div style={{
@@ -24,7 +27,6 @@ function AnalysisComponent({
       }}>
         {analysis ? (
           <div style={{ animation: 'fadeIn 0.6s ease-out' }}>
-            {/* Uploaded Image Display */}
             {imagePreview && (
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <img 
@@ -45,7 +47,7 @@ function AnalysisComponent({
               </div>
             )}
 
-            {/* Disease Status Badge */}
+            {/* Category + Plant Info */}
             <div style={{
               textAlign: 'center',
               marginBottom: '20px',
@@ -75,7 +77,7 @@ function AnalysisComponent({
               </div>
             </div>
 
-            {/* Confidence Score */}
+            {/* Confidence */}
             <div style={{ marginBottom: '25px' }}>
               <div style={{ 
                 display: 'flex', 
@@ -114,7 +116,7 @@ function AnalysisComponent({
               </div>
             </div>
 
-            {/* Severity Level */}
+            {/* Severity */}
             {analysis.severity !== 'None' && (
               <div style={{
                 padding: '15px',
@@ -143,171 +145,54 @@ function AnalysisComponent({
 
             {/* Description */}
             <div style={{ marginBottom: '25px' }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                marginBottom: '12px',
-                color: '#333',
-                borderBottom: '2px solid #e0e0e0',
-                paddingBottom: '5px'
-              }}>
-                🔍 Diagnosis
-              </h3>
-              <p style={{ 
-                lineHeight: '1.6', 
-                color: '#555',
-                padding: '12px',
-                background: '#f8f9fa',
-                borderRadius: '8px',
-                borderLeft: '4px solid #2196F3'
-              }}>
-                {analysis.description}
-              </p>
+              <h3 style={sectionHeader}>🔍 Diagnosis</h3>
+              <p style={sectionText}>{analysis.description}</p>
             </div>
 
             {/* Treatment */}
             <div style={{ marginBottom: '25px' }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                marginBottom: '12px',
-                color: '#333',
-                borderBottom: '2px solid #e0e0e0',
-                paddingBottom: '5px'
-              }}>
-                💊 Recommended Treatment
-              </h3>
-              <div style={{
-                padding: '15px',
-                background: 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
-                borderRadius: '10px',
-                border: '1px solid #2196F3'
-              }}>
-                <p style={{ 
-                  lineHeight: '1.6', 
-                  color: '#1565c0', 
-                  margin: 0,
-                  fontWeight: '500'
-                }}>
-                  {analysis.treatment}
-                </p>
-              </div>
+              <h3 style={sectionHeader}>💊 Recommended Treatment</h3>
+              <div style={treatmentBox}>{analysis.treatment}</div>
             </div>
 
             {/* Prevention */}
             <div style={{ marginBottom: '25px' }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                marginBottom: '12px',
-                color: '#333',
-                borderBottom: '2px solid #e0e0e0',
-                paddingBottom: '5px'
-              }}>
-                🛡️ Prevention Tips
-              </h3>
-              <div style={{
-                padding: '15px',
-                background: 'linear-gradient(135deg, #e8f5e8, #c8e6c9)',
-                borderRadius: '10px',
-                border: '1px solid #4CAF50'
-              }}>
-                <p style={{ 
-                  lineHeight: '1.6', 
-                  color: '#2e7d32', 
-                  margin: 0,
-                  fontWeight: '500'
-                }}>
-                  {analysis.prevention}
-                </p>
-              </div>
+              <h3 style={sectionHeader}>🛡️ Prevention Tips</h3>
+              <div style={preventionBox}>{analysis.prevention}</div>
             </div>
 
             {/* Tags */}
-            <div style={{ marginBottom: '25px' }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                marginBottom: '12px',
-                color: '#333',
-                borderBottom: '2px solid #e0e0e0',
-                paddingBottom: '5px'
-              }}>
-                🏷️ Tags
-              </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {analysis.tags.map((tag, index) => (
-                  <span 
-                    key={index}
-                    style={{
-                      padding: '8px 12px',
-                      background: 'linear-gradient(135deg, #e1f5fe, #b3e5fc)',
-                      color: '#0277bd',
-                      borderRadius: '20px',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      border: '1px solid #29b6f6',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
+            {safeTags.length > 0 && (
+              <div style={{ marginBottom: '25px' }}>
+                <h3 style={sectionHeader}>🏷️ Tags</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {safeTags.map((tag, index) => (
+                    <span key={index} style={tagStyle}>{tag}</span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Detailed Information */}
-            <div>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 'bold', 
-                marginBottom: '15px',
-                color: '#333',
-                borderBottom: '2px solid #e0e0e0',
-                paddingBottom: '5px'
-              }}>
-                📋 Detailed Information
-              </h3>
-              <div style={{
-                background: 'white',
-                borderRadius: '10px',
-                border: '1px solid #e0e0e0',
-                overflow: 'hidden'
-              }}>
-                {Object.entries(analysis.details).map(([key, value], index) => (
-                  <div 
-                    key={index} 
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px 16px',
-                      borderBottom: index < Object.entries(analysis.details).length - 1 ? '1px solid #f0f0f0' : 'none',
-                      background: index % 2 === 0 ? '#fafafa' : 'white',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = index % 2 === 0 ? '#fafafa' : 'white'}
-                  >
-                    <span style={{ 
-                      fontWeight: '600', 
-                      color: '#444',
-                      fontSize: '14px'
-                    }}>
-                      {key}
-                    </span>
-                    <span style={{ 
-                      color: '#666', 
-                      textAlign: 'right',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}>
-                      {value}
-                    </span>
-                  </div>
-                ))}
+            {/* Details */}
+            {Object.keys(safeDetails).length > 0 && (
+              <div>
+                <h3 style={sectionHeader}>📋 Detailed Information</h3>
+                <div style={detailsContainer}>
+                  {Object.entries(safeDetails).map(([key, value], index) => (
+                    <div 
+                      key={index} 
+                      style={{
+                        ...detailsRow,
+                        backgroundColor: index % 2 === 0 ? '#fafafa' : 'white'
+                      }}
+                    >
+                      <span style={detailsKey}>{key}</span>
+                      <span style={detailsValue}>{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           <div style={{
@@ -329,7 +214,7 @@ function AnalysisComponent({
         )}
       </div>
 
-      {/* Analysis Button */}
+      {/* Analyze Button */}
       <button
         onClick={onAnalyze}
         disabled={!selectedFile || isAnalyzing}
@@ -349,11 +234,7 @@ function AnalysisComponent({
           boxShadow: selectedFile && !isAnalyzing ? '0 4px 15px rgba(33, 150, 243, 0.3)' : 'none'
         }}
       >
-        {isAnalyzing ? (
-          <>🔄 Analyzing... {Math.round(analysisProgress)}%</>
-        ) : (
-          <>✨ Analyze Plant Health</>
-        )}
+        {isAnalyzing ? `🔄 Analyzing... ${Math.round(analysisProgress)}%` : '✨ Analyze Plant Health'}
       </button>
 
       {/* Progress Bar */}
@@ -375,15 +256,83 @@ function AnalysisComponent({
           ></div>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
+
+// Style Helpers
+const sectionHeader = {
+  fontSize: '18px',
+  fontWeight: 'bold',
+  marginBottom: '12px',
+  color: '#333',
+  borderBottom: '2px solid #e0e0e0',
+  paddingBottom: '5px'
+};
+
+const sectionText = {
+  lineHeight: '1.6',
+  color: '#555',
+  padding: '12px',
+  background: '#f8f9fa',
+  borderRadius: '8px',
+  borderLeft: '4px solid #2196F3'
+};
+
+const treatmentBox = {
+  padding: '15px',
+  background: 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+  borderRadius: '10px',
+  border: '1px solid #2196F3',
+  color: '#1565c0',
+  fontWeight: '500'
+};
+
+const preventionBox = {
+  padding: '15px',
+  background: 'linear-gradient(135deg, #e8f5e8, #c8e6c9)',
+  borderRadius: '10px',
+  border: '1px solid #4CAF50',
+  color: '#2e7d32',
+  fontWeight: '500'
+};
+
+const tagStyle = {
+  padding: '8px 12px',
+  background: 'linear-gradient(135deg, #e1f5fe, #b3e5fc)',
+  color: '#0277bd',
+  borderRadius: '20px',
+  fontSize: '13px',
+  fontWeight: 'bold',
+  border: '1px solid #29b6f6'
+};
+
+const detailsContainer = {
+  background: 'white',
+  borderRadius: '10px',
+  border: '1px solid #e0e0e0',
+  overflow: 'hidden'
+};
+
+const detailsRow = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '12px 16px',
+  borderBottom: '1px solid #f0f0f0'
+};
+
+const detailsKey = {
+  fontWeight: '600',
+  color: '#444',
+  fontSize: '14px'
+};
+
+const detailsValue = {
+  color: '#666',
+  textAlign: 'right',
+  fontSize: '14px',
+  fontWeight: '500'
+};
 
 export default AnalysisComponent;
